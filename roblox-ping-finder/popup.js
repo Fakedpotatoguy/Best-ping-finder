@@ -30,33 +30,51 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Simulate region and ping
       const servers = data.data.map(server => {
         const region = guessRegionFromId(server.id);
         const ping = estimatePing(playerRegion, region);
         return { ...server, region, ping };
       });
 
-      // Sort by lowest ping
+      // Sort by ping and show top 3
       const topServers = servers.sort((a, b) => a.ping - b.ping).slice(0, 3);
 
-      resultDiv.innerHTML = `
-        <h3>🏆 Top 3 Best Servers</h3>
-        ${topServers.map((server, index) => `
-          <div class="server-info">
-            🥇 <b>Server #${index + 1}</b><br/>
-            🔗 <b>ID:</b> ${server.id}<br/>
-            📍 <b>Region:</b> ${server.region}<br/>
-            ⏱ <b>Ping:</b> ${server.ping}ms<br/>
-            👥 <b>Players:</b> ${server.playing}/${server.maxPlayers}<br/>
-            <div class="join-btn">
-              <a href="roblox://experiences/start?placeId=${gameId}&gameInstanceId=${server.id}">
-                <button>🚀 Join This Server</button>
-              </a>
-            </div>
-          </div>
-        `).join('')}
+      let html = `
+        <div class="server-info">
+          🧭 <b>Your Region:</b> ${playerRegion}<br/><br/>
       `;
+
+      topServers.forEach((server, index) => {
+        html += `
+          <div style="margin-bottom: 25px;">
+            <h3>🔢 Server ${index + 1}</h3>
+            🆔 <b>Server ID:</b> ${server.id}<br/>
+            📍 <b>Region:</b> ${server.region}<br/>
+            ⏱️ <b>Ping:</b> ${server.ping}ms<br/>
+            👥 <b>Players:</b> ${server.playing}/${server.maxPlayers}<br/>
+            <a href="roblox://experiences/start?placeId=${gameId}&gameInstanceId=${server.id}" style="
+              display: inline-block;
+              margin-top: 10px;
+              padding: 10px 20px;
+              background: linear-gradient(145deg, #00bfff, #1e90ff);
+              color: white;
+              font-weight: bold;
+              border: none;
+              border-radius: 12px;
+              text-decoration: none;
+              font-size: 14px;
+              box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+              transition: 0.2s ease;
+            " onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">
+              🚀 Join This Server
+            </a>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      resultDiv.innerHTML = html;
+
     } catch (err) {
       resultDiv.innerHTML = "⚠️ Error fetching servers:<br/>" + err;
     }
@@ -83,7 +101,7 @@ function estimatePing(playerRegion, serverRegion) {
     "Unknown":   { "Singapore": 300, "Asia": 300, "Europe": 300, "US-East": 300, "US-West": 300 }
   };
 
-  return (table[playerRegion] && table[playerRegion][serverRegion]) || 999;
+  return table[playerRegion]?.[serverRegion] ?? 300;
 }
 
 async function getPlayerRegion() {
@@ -92,6 +110,7 @@ async function getPlayerRegion() {
     const data = await res.json();
 
     const country = data.country_code;
+    console.log("🌎 Detected Country Code:", country);
 
     if (["PH", "ID", "MY", "TH", "VN"].includes(country)) return "Singapore";
     if (["JP", "KR", "CN", "IN", "HK", "TW"].includes(country)) return "Asia";
@@ -99,10 +118,10 @@ async function getPlayerRegion() {
     if (["GB", "FR", "DE", "IT", "ES", "PL", "NL"].includes(country)) return "Europe";
     if (["AU", "NZ"].includes(country)) return "Asia";
 
-    return "US-West";
+    return "Singapore"; // Default safe fallback
   } catch (err) {
-    console.error("Geo IP lookup failed", err);
-    return "Unknown";
+    console.error("Geo IP lookup failed:", err);
+    return "Singapore";
   }
 }
 
