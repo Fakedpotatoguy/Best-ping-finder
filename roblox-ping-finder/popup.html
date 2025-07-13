@@ -1,40 +1,111 @@
+<!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8" />
+  <title>Roblox Server Picker</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     html, body {
+      margin: 0;
+      padding: 0;
       width: 800px;
       height: 600px;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      color: #2d3436;
+    }
+
+    body {
       padding: 20px;
-      font-family: Arial;
-      overflow-y: auto;
-      background: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
-    .server-info {
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      margin-top: 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+
+    h2 {
+      margin-top: 0;
+      color: #0984e3;
     }
-    button {
-      padding: 10px 16px;
+
+    #find {
+      align-self: flex-start;
+      padding: 10px 18px;
       font-size: 16px;
       border: none;
       border-radius: 8px;
-      cursor: pointer;
       background-color: #0984e3;
       color: white;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s;
     }
+
+    #find:hover {
+      background-color: #0872c1;
+    }
+
+    .server-info {
+      background: white;
+      padding: 15px 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+
+    .server-info h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: #2d3436;
+    }
+
+    .server-info b {
+      color: #2d3436;
+    }
+
     .join-btn button {
+      margin-top: 12px;
       background-color: #00b894;
-      margin-top: 10px;
+      font-size: 15px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+
+    .join-btn button:hover {
+      background-color: #00a07e;
+    }
+
+    #result {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: #636e72;
+      margin-top: auto;
     }
   </style>
 </head>
 <body>
   <h2>🎮 Roblox Server Picker</h2>
-  <button id="find">🔍 Find Best Server</button>
+  <button id="find">🔍 Find Best Servers</button>
+
   <div id="result">Ready to search...</div>
+
+  <footer>
+    ✅ 100% Clean • No tracking • No viruses • v1.0
+  </footer>
+
   <script src="popup.js"></script>
 </body>
 </html>
