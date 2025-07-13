@@ -30,28 +30,32 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      // Simulate region and ping
       const servers = data.data.map(server => {
         const region = guessRegionFromId(server.id);
         const ping = estimatePing(playerRegion, region);
         return { ...server, region, ping };
       });
 
-      // Pick lowest ping
-      const bestServer = servers.reduce((a, b) => a.ping < b.ping ? a : b);
+      // Sort by lowest ping
+      const topServers = servers.sort((a, b) => a.ping - b.ping).slice(0, 3);
 
       resultDiv.innerHTML = `
-        <div class="server-info">
-          🧭 Your Region: <b>${playerRegion}</b><br/>
-          🏆 Closest Server ID: <b>${bestServer.id}</b><br/>
-          📍 Server Region: <b>${bestServer.region}</b><br/>
-          ⏱️ Estimated Ping: <b>${bestServer.ping}ms</b><br/>
-          👥 Players: ${bestServer.playing}/${bestServer.maxPlayers}<br/><br/>
-          <div class="join-btn">
-            <a href="roblox://experiences/start?placeId=${gameId}&gameInstanceId=${bestServer.id}">
-              <button>🚀 Join This Server</button>
-            </a>
+        <h3>🏆 Top 3 Best Servers</h3>
+        ${topServers.map((server, index) => `
+          <div class="server-info">
+            🥇 <b>Server #${index + 1}</b><br/>
+            🔗 <b>ID:</b> ${server.id}<br/>
+            📍 <b>Region:</b> ${server.region}<br/>
+            ⏱ <b>Ping:</b> ${server.ping}ms<br/>
+            👥 <b>Players:</b> ${server.playing}/${server.maxPlayers}<br/>
+            <div class="join-btn">
+              <a href="roblox://experiences/start?placeId=${gameId}&gameInstanceId=${server.id}">
+                <button>🚀 Join This Server</button>
+              </a>
+            </div>
           </div>
-        </div>
+        `).join('')}
       `;
     } catch (err) {
       resultDiv.innerHTML = "⚠️ Error fetching servers:<br/>" + err;
