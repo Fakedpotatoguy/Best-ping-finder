@@ -30,32 +30,29 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const servers = await Promise.all(data.data.map(async server => {
+      // Simulate region and ping
+      const servers = data.data.map(server => {
         const region = guessRegionFromId(server.id);
         const ping = estimatePing(playerRegion, region);
-        const livePing = await getLivePing(server.id); // Simulated for now
+        return { ...server, region, ping };
+      });
 
-        return { ...server, region, ping, livePing };
-      }));
-
+      // Sort by lowest ping
       const topServers = servers.sort((a, b) => a.ping - b.ping).slice(0, 3);
 
       resultDiv.innerHTML = `
         <h3>🏆 Top 3 Best Servers</h3>
         ${topServers.map((server, index) => `
           <div class="server-info">
-            🥇 <b>Server #${index + 1}</b> ${isFavorite(server.id) ? '❤️' : ''}
-            <br/>
+            🥇 <b>Server #${index + 1}</b><br/>
             🔗 <b>ID:</b> ${server.id}<br/>
             📍 <b>Region:</b> ${server.region}<br/>
-            ⏱ <b>Estimated Ping:</b> ${server.ping}ms<br/>
-            🔴 <b>Live Ping:</b> ${server.livePing}ms<br/>
+            ⏱ <b>Ping:</b> ${server.ping}ms<br/>
             👥 <b>Players:</b> ${server.playing}/${server.maxPlayers}<br/>
             <div class="join-btn">
               <a href="roblox://experiences/start?placeId=${gameId}&gameInstanceId=${server.id}">
-                <button>🚀 Join</button>
+                <button>🚀 Join This Server</button>
               </a>
-              <button onclick="saveFavorite('${server.id}')" style="margin-left: 10px;">⭐ Save</button>
             </div>
           </div>
         `).join('')}
@@ -66,24 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ---- FAVORITE SERVER SAVE ----
-
-function saveFavorite(serverId) {
-  let favorites = JSON.parse(localStorage.getItem("favoriteServers")) || [];
-  if (!favorites.includes(serverId)) {
-    favorites.push(serverId);
-    localStorage.setItem("favoriteServers", JSON.stringify(favorites));
-    location.reload(); // Refresh to show ❤️
-  }
-}
-
-function isFavorite(serverId) {
-  let favorites = JSON.parse(localStorage.getItem("favoriteServers")) || [];
-  return favorites.includes(serverId);
-}
-
-// ---- HELPER: GUESS REGION ----
-
 function guessRegionFromId(id) {
   const lastDigit = parseInt(id[id.length - 1]);
   if (isNaN(lastDigit)) return "Unknown";
@@ -93,8 +72,6 @@ function guessRegionFromId(id) {
   if (lastDigit <= 8) return "US-West";
   return "Singapore";
 }
-
-// ---- HELPER: ESTIMATE PING ----
 
 function estimatePing(playerRegion, serverRegion) {
   const table = {
@@ -108,8 +85,6 @@ function estimatePing(playerRegion, serverRegion) {
 
   return (table[playerRegion] && table[playerRegion][serverRegion]) || 999;
 }
-
-// ---- HELPER: DETECT REGION ----
 
 async function getPlayerRegion() {
   try {
@@ -131,26 +106,7 @@ async function getPlayerRegion() {
   }
 }
 
-// ---- HELPER: GRAB GAME ID ----
-
 function getGameIdFromURL(url) {
   const match = url.match(/roblox\.com\/games\/(\d+)/);
   return match ? match[1] : null;
-}
-
-// ---- SIMULATED LIVE PING ----
-
-async function getLivePing(serverId) {
-  return new Promise((resolve, reject) => {
-    const start = Date.now();
-    const socket = new WebSocket("wss://ws.postman-echo.com/raw");
-
-    socket.onopen = () => socket.send("ping");
-    socket.onmessage = () => {
-      const ping = Date.now() - start;
-      socket.close();
-      resolve(ping);
-    };
-    socket.onerror = () => resolve(999); // fallback
-  });
 }
