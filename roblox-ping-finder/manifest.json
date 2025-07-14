@@ -1,17 +1,21 @@
 {
   "manifest_version": 3,
-  "name": "Roblox Best Ping Server Finder",
+  "name": "Roblox Best Server Finder",
   "version": "1.0",
-  "description": "Finds the best Roblox server based on ping 🛰️",
-  "permissions": ["scripting", "activeTab"],
-  "host_permissions": ["https://*.roblox.com/*"],
-  "action": {
-    "default_popup": "popup.html"
-  },
+  "permissions": ["tabs", "scripting"],
   "content_scripts": [
     {
-      "matches": ["https://*.roblox.com/*"],
-      "js": ["content.js"]
+      "matches": ["*://www.roblox.com/games/*"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
     }
-  ]
+  ],
+  "host_permissions": [
+    "https://ipapi.co/*",
+    "https://games.roblox.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  }
 }
